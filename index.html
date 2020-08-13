@@ -183,6 +183,47 @@
           featureLayer.bindPopup(popup);
         }
       }).addTo(map);
+
+      var waypoints = L.geoJson(null, {
+        style: function (feature) {
+          return {
+            stroke: false,
+            color: "red",
+            fillColor: "red",
+            fillOpacity: 0.5
+          };
+        },
+        onEachFeature: function (feature, featureLayer) {
+          var content =
+            "<h2>No Camping Area -</br>Temporary Prohibition</h2><h3>Dartmoor Commons Act Section 10(4)</h3>";
+          content =
+            content +
+            "<p>Temporary ban on all overnight stays and camping from 7 August until 2 September.  For more details see <a href=https://www.dartmoor.gov.uk/enjoy-dartmoor/outdoor-activities/access-and-rights-of-way-notices target='_blank'>Access and Rights of Way notices.</a>";
+          var popup = L.responsivePopup().setContent(content);
+          featureLayer.bindPopup(popup);
+        }
+      }).addTo(map);
+      waypoints.addData(
+        JSON.parse(`{
+"type": "FeatureCollection",
+"name": "route_points",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "route_fid": 0, "route_point_id": 0, "ele": 421.5 }, "geometry": { "type": "Point", "coordinates": [ -3.9906627, 50.5433746 ] } },
+
+{ "type": "Feature", "properties": { "route_fid": 0, "route_point_id": 213, "ele": 427.5, "name": "SX 6858 7414" }, "geometry": { "type": "Point", "coordinates": [ -3.8563612, 50.5522404 ] } },
+
+{ "type": "Feature", "properties": { "route_fid": 0, "route_point_id": 315, "ele": 429.4, "name": "SX 6787 8169" }, "geometry": { "type": "Point", "coordinates": [ -3.8690939, 50.6199939 ] } },
+
+{ "type": "Feature", "properties": { "route_fid": 0, "route_point_id": 352, "ele": 529.6, "name": "SX 5875 9090" }, "geometry": { "type": "Point", "coordinates": [ -4.001403, 50.7005789 ] } },
+
+{ "type": "Feature", "properties": { "route_fid": 0, "route_point_id": 360, "ele": 584.1, "name": "SX 5675 8722" }, "geometry": { "type": "Point", "coordinates": [ -4.0282619, 50.6670532 ] } },
+
+{ "type": "Feature", "properties": { "route_fid": 0, "route_point_id": 388, "ele": 420.6 }, "geometry": { "type": "Point", "coordinates": [ -3.9914798, 50.5441745 ] } }
+]
+}
+`)
+      );
       // $.getJSON("https://maps.dartmoor.gov.uk/camping.geojson", function (data) {
       // 	camping.addData(data)
       // });

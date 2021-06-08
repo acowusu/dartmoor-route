@@ -43,6 +43,8 @@
       }
 
       #legend {
+        display: flex;
+        flex-direction: column;
         border: 2px solid;
         font: 14px Arial;
       }
@@ -51,8 +53,10 @@
   <body>
     <div id="map"></div>
     <div id="legend">
+      <input type="file" style="display: none;" id="fileholder"/></input>
+      <button id="upload-button">upload route</button>
       <svg width="210" height="102">
-        <text x="35" y="19" transform="translate(8,4)">Backpack (wild)</text>
+        <text x="35" y="19" transform="translate(8,4)">Backpack wild</text>
         <text x="35" y="36" transform="translate(8,4)">Camping Permitted</text>
         <rect
           x="14"
@@ -88,11 +92,44 @@
     <script src="https://unpkg.com/leaflet-responsive-popup@0.6.4/leaflet.responsive.popup.js"></script>
     <script src="https://maps.dartmoor.gov.uk/js/leaflet.wms.js"></script>
     <!-- <script src="https://maps.dartmoor.gov.uk/js/dnpa_boundary.js"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.5.1/gpx.min.js"></script>
+
     <script src="https://maps.dartmoor.gov.uk/../js/proj4.js"></script>
     <script src="https://maps.dartmoor.gov.uk/../js/proj4leaflet.js"></script>
     <script src="https://maps.dartmoor.gov.uk/js/leaflet-legend.js"></script>
 
     <script>
+      let log = console.log
+      let fileholder = document.getElementById("fileholder")
+      let uploadbutton = document.getElementById("upload-button")
+      uploadbutton.addEventListener("click", function(){
+        fileholder.click()
+})
+fileholder.onchange = function(event) {
+   var fileList = fileholder.files;
+   console.log("new File")
+   log(fileList)
+   const reader = new FileReader();
+  reader.addEventListener('load', (event) => {
+    var gpx =   event.target.result; // URL to your GPX file or the GPX itself
+new L.GPX(gpx, {async: true,
+  marker_options: {
+    startIconUrl: 'https://unpkg.com/leaflet@1.5.1/dist/images/marker-icon.png',
+    endIconUrl: 'https://unpkg.com/leaflet@1.5.1/dist/images/marker-icon.png',
+    shadowUrl: 'https://raw.githubusercontent.com/mpetazzoni/leaflet-gpx/main/pin-shadow.png'
+  },
+  polyline_options: {
+    color: 'blue',
+    opacity: 0.75,
+    weight: 3,
+    lineCap: 'round'
+  }
+}).on('loaded', function(e) {
+  map.fitBounds(e.target.getBounds());
+}).addTo(map);
+  });
+  reader.readAsDataURL(fileList[0]);
+}
       if (L.Browser.ielt9) {
         alert(
           "As your web browser is out of data some parts of this web map might not work. Please consider updating your version of Internet Explorer to version 11 or higher"
@@ -100,12 +137,6 @@
       }
 
       // Bounding box of our TMS that define our area of interest
-      var bbox = [
-        -84702.61914736108,
-        -9272.577651805477,
-        676223.7241900009,
-        1512580.1090229184
-      ];
 
       // var res = [2800, 1400, 700, 350, 175, 84, 42, 21, 11.2, 5.6, 2.8, 1.4, 0.7, 0.35, 0.14, 0.07];
 
@@ -194,15 +225,14 @@
           };
         },
         onEachFeature: function (feature, featureLayer) {
-          var content =
-            "<h2>No Camping Area -</br>Temporary Prohibition</h2><h3>Dartmoor Commons Act Section 10(4)</h3>";
+          console.log(feature);
+          var content = `<h2>Waypoint ${feature.properties.name} </h2>`;
           content =
-            content +
-            "<p>Temporary ban on all overnight stays and camping from 7 August until 2 September.  For more details see <a href=https://www.dartmoor.gov.uk/enjoy-dartmoor/outdoor-activities/access-and-rights-of-way-notices target='_blank'>Access and Rights of Way notices.</a>";
+            content + `${JSON.stringify(feature.geometry.coordinates)} `;
           var popup = L.responsivePopup().setContent(content);
           featureLayer.bindPopup(popup);
         }
-      }).addTo(map);
+      })//.addTo(map); //use uploader istead
       waypoints.addData(
         JSON.parse(`{
 "type": "FeatureCollection",
@@ -282,7 +312,7 @@
         },
         onEachFeature: function (feature, featureLayer) {
           var content =
-            "<h2>No Camping Area -</br>Temporary Prohibition</h2><h3>Dartmoor Commons Act Section 10(4)</h3>";
+            "<h2>SECT10 No Camping Area -</br>Temporary Prohibition</h2><h3>Dartmoor Commons Act Section 10(4)</h3>";
           content =
             content +
             "<p>Temporary ban on all overnight stays and camping from 7 August until 2 September.  For more details see <a href=https://www.dartmoor.gov.uk/enjoy-dartmoor/outdoor-activities/access-and-rights-of-way-notices target='_blank'>Access and Rights of Way notices.</a>";
@@ -313,15 +343,14 @@
           };
         },
         onEachFeature: function (feature, featureLayer) {
-          var content =
-            "<h2>No Camping Area -</br>Temporary Prohibition</h2><h3>Dartmoor Commons Act Section 10(4)</h3>";
+          var content = "<h2>route</h3>";
           content =
             content +
-            "<p>Temporary ban on all overnight stays and camping from 7 August until 2 September.  For more details see <a href=https://www.dartmoor.gov.uk/enjoy-dartmoor/outdoor-activities/access-and-rights-of-way-notices target='_blank'>Access and Rights of Way notices.</a>";
+            "<p>MR Temporary ban on all overnight stays and camping from 7 August until 2 September.  For more details see <a href=https://www.dartmoor.gov.uk/enjoy-dartmoor/outdoor-activities/access-and-rights-of-way-notices target='_blank'>Access and Rights of Way notices.</a>";
           var popup = L.responsivePopup().setContent(content);
           featureLayer.bindPopup(popup);
         }
-      }).addTo(map);
+      })//.addTo(map); //use upload instead 
       myRoute.addData(
         JSON.parse(`{
 "type": "FeatureCollection",
